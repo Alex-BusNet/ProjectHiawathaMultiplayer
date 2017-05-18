@@ -1,6 +1,6 @@
 #include "servermanager.h"
 
-ServerManager::ServerManager()
+ServerManager::ServerManager(QWidget *parent, int mapX, int mapY, int numAI)
 {
 
 }

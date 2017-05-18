@@ -1,8 +1,12 @@
 #ifndef SERVEROPTIONS_H
 #define SERVEROPTIONS_H
 
+#include <QIcon>
 #include <QWidget>
 #include <Server/servermanager.h>
+#include "Common/nation.h"
+
+typedef struct {QString civName; Nation nation; bool isAi; QIcon civIcon;} CivInfo;
 
 namespace Ui {
 class ServerOptions;
@@ -21,6 +25,18 @@ private slots:
     void on_civSelect_currentIndexChanged(int index);
 
     void on_backToMenu_clicked();
+
+    void on_mapSelect_currentIndexChanged(int index);
+
+    void on_civList_currentRowChanged(int currentRow);
+
+    void on_addCivPB_clicked();
+
+    void on_removeCivPB_clicked();
+
+    void on_aiRB_clicked();
+
+    void on_humanRB_clicked();
 
 private:
     Ui::ServerOptions *ui;
@@ -42,7 +58,35 @@ private:
     QPixmap pic14;  //("../ProjectHiawatha/Assets/Leaders/Oda_Nobunga.jpg");
     QPixmap pic15;  //("../ProjectHiawatha/Assets/Leaders/Cyrus.jpg");
     QPixmap pic16;  //("../ProjectHiawatha/Assets/Leaders/Harun-Rashid.jpg");
-    QPixmap pic17;
+    QPixmap pic17;  //("../ProjectHiawatha/Assets/Leaders/random.jpg")
+
+    //add the icon that correspond to the civ
+    QIcon icon4;
+    QIcon icon2;
+    QIcon icon3;
+    QIcon icon1;
+    QIcon icon5;
+    QIcon icon6;
+    QIcon icon7;
+    QIcon icon8;
+    QIcon icon9;
+    QIcon icon10;
+    QIcon icon11;
+    QIcon icon12;
+    QIcon icon13;
+    QIcon icon14;
+    QIcon icon15;
+    QIcon icon16;
+    QIcon icon17;
+
+    int humanCount, aiCount, maxPlayers;
+    bool setup;
+
+    void updateCivs(bool updateCount);
+
+    QVector<CivInfo*> civs;
+    QVector<QPixmap*> leaderImages;
+    QVector<QIcon*> nationIcons;
 };
 
 #endif // SERVEROPTIONS_H
