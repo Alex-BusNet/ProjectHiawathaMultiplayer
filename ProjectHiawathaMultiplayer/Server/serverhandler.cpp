@@ -14,9 +14,9 @@ ServerHandler *ServerHandler::instance()
     return serverHandler;
 }
 
-bool ServerHandler::StartServer(QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI)
+bool ServerHandler::StartServer(QString IP, QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI)
 {
-    if(this->listen(QHostAddress("192.168.1.140"), 5300))
+    if(this->listen(QHostAddress(IP), 5300))
     {
 //        MessageQueue::instance()->put("-1,SYS,Server Started. Listening on: " + this->serverAddress().toString() + ":5300");
         serverInfo = setupInfo.split(';');

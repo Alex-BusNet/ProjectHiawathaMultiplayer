@@ -15,7 +15,7 @@ public:
     inline ServerHandler() {}
     static ServerHandler* instance();
 
-    bool StartServer(QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI);
+    bool StartServer(QString IP, QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI);
     void StopServer();
 
 private:

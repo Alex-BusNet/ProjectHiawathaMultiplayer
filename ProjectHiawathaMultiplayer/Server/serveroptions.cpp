@@ -40,6 +40,8 @@ ServerOptions::ServerOptions(QWidget *parent) :
     OptionsStyle += "QLabel#leaderPortrait, #humanCountLabel, #aiCountLabel { border: 2px inset #f6b300; background: #dedede; max-height: 200px; max-width: 210px; }";
     OptionsStyle += "QComboBox { background-color: gray; border: 2px inset #f6b300; } QLabel#mapLabel { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 50px; max-width: 130px; } QLabel#civLabel { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 50px; max-width: 130px; }";
     OptionsStyle += "QLineEdit { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 15px; min-width: 150px; }";
+    OptionsStyle += "QLabel#IPLabel { font: bold; background: transparent; max-width: 210px;}";
+    OptionsStyle += "QLineEdit#IPEntry { font: normal; background: #dedede; border: 1px inset black; }";
 
     this->setStyleSheet(OptionsStyle);
 
@@ -120,6 +122,7 @@ ServerOptions::ServerOptions(QWidget *parent) :
     ui->leaderPortrait->setScaledContents(true);
     ui->leaderPortrait->setPixmap(pic17);
     ui->civSelect->setCurrentIndex(16);
+    ui->IPEntry->setText("192.168.1.140");
 
     maxPlayers = 2;
     humanCount = 2;
@@ -165,7 +168,7 @@ void ServerOptions::on_startServer_clicked()
         info.append(ci->civName + "," + NationName(ci->nation) + "," + (ci->isAi ? "true" : "false") + ";");
     }
 
-    if(ServerHandler::instance()->StartServer(info, maxPlayers, mapSize1, mapSize2, aiCount))
+    if(ServerHandler::instance()->StartServer(ui->IPEntry->text(), info, maxPlayers, mapSize1, mapSize2, aiCount))
     {
         ui->mapSelect->setEnabled(false);
         ui->aiRB->setEnabled(false);
