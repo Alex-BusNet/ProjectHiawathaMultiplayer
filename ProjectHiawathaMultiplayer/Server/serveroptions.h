@@ -38,6 +38,8 @@ private slots:
 
     void on_humanRB_clicked();
 
+    void ReadMessage();
+
 private:
     Ui::ServerOptions *ui;
     ServerManager *server;

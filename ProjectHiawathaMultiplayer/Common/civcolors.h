@@ -2,7 +2,7 @@
 #define CIVCOLORS_H
 
 #include <QColor>
-#include "nation.h"
+#include "Common/nation.h"
 
 class CivColors
 {

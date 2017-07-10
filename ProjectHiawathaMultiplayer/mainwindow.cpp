@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     sOptions = NULL;
-    cOptions = NULL;
+    ccd = NULL;
     about = NULL;
     fullscreen = false;
     bkgnd = new QPixmap("Assets/Menu/Background/dom_hiawatha.png");
@@ -43,8 +43,8 @@ MainWindow::~MainWindow()
     if(ui != NULL)
         delete ui;
 
-    if(cOptions != NULL)
-        delete cOptions;
+    if(ccd != NULL)
+        delete ccd;
 
     if(about != NULL)
         delete about;
@@ -52,11 +52,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_client_clicked()
 {   
-    if(cOptions != NULL)
-        delete cOptions;
+    if(ccd != NULL)
+        delete ccd;
 
-    cOptions = new ClientOptions(0,fullscreen);
-    cOptions->show();
+    ccd = new ClientConnectDialog(this->fullscreen);
+    ccd->show();
 }
 
 

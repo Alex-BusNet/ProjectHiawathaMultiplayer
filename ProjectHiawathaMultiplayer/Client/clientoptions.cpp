@@ -8,124 +8,79 @@
 #include <QDebug>
 #include <QMediaPlayer>
 #include <ui_clientoptions.h>
+#include <Client/clienthandler.h>
 
 typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor; int mapDimension1;
                int mapDimension2;}CivInfo;
 
-ClientOptions::ClientOptions(QWidget *parent, bool fullscreen) :
+ClientOptions::ClientOptions(QWidget *parent, QString username, bool fullscreen) :
     QWidget(parent),
     ui(new Ui::ClientOptions)
 {
     ui->setupUi(this);
     FullScreen = fullscreen;
+    user = username;
     game = NULL;
     this->setWindowFlags(Qt::FramelessWindowHint);
 
     QString OptionsStyle = "QWidget { background-color: #145e88; } QFrame { background-color: black; }";
-    OptionsStyle += "QPushButton { background-color: #4899C8; border: 1px solid #f6b300; border-radius: 6px; font: 10px; min-width: 100px;}";
+    OptionsStyle += "QPushButton { background-color: #4899C8; border: 1px solid #f6b300; border-radius: 6px; font: 10px; min-width: 75px; max-width: 100px; min-height: 25px; max-height: 40px;}";
     OptionsStyle += "QPushButton:pressed { background-color: #77adcb; }";
     OptionsStyle += "QScrollBar:vertical { border: 2px sold black; background: #77adcb; width: 15px; margin: 12px 0 12px 0;} QScrollBar::handle:vertical { background: #4899C8; min-height: 10px; }";
     OptionsStyle += "QScrollBar::add-line:vertical { border: 1px solid black; background: #dedede; height: 10px; subcontrol-position: bottom; subcontrol-origin: margin; }  QScrollBar::sub-line:vertical { border: 1px solid black; height: 10px; background: #dedede; subcontrol-position: top; subcontrol-origin: margin; }";
     OptionsStyle += "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { border: 1px solid black; width: 3px; height: 3px; background: purple; } QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }";
-    OptionsStyle += "QListView { background-color: white; }";
-    OptionsStyle += "QListView#listWidget { border: 5px inset #f6b300; show-decoration-selected: 1; } QLabel#label_3, #label_2, #label_4, #label_5 { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 15px; min-width: 150px; }";
+    OptionsStyle += "QListView { background-color: white; } QListView::item { min-height: 50px; }";
+    OptionsStyle += "QListView#civListWidget, #serverView { border: 5px inset #f6b300; show-decoration-selected: 1; } QLabel#playerLeaderName, #playerNationName { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 15px; min-width: 150px; }";
     OptionsStyle += "QComboBox { background-color: white; }";
     OptionsStyle += "QLineEdit { border: 2px inset #f6b300; background: #dedede; font: bold; max-height: 15px; min-width: 150px; }";
+    OptionsStyle += "QTextBrowser { border: 2px inset #f6b300; background: white; font: normal; color: black; }";
+    OptionsStyle += "QLineEdit#playerMessageBox { border: 1px inset #f6b300; background: white; font: normal; color: black; }" ;
 
     this->setStyleSheet(OptionsStyle);
     //Add the Civs to the list
-    QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->listWidget);
-    QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->listWidget);
-    QListWidgetItem* item3 =new QListWidgetItem(tr("India"), ui->listWidget);
-    QListWidgetItem* item4 = new QListWidgetItem(tr("United States of America"),ui->listWidget);
-    QListWidgetItem* item5 =new QListWidgetItem(tr("Mongolia"), ui->listWidget);
-    QListWidgetItem* item6 =new QListWidgetItem(tr("Aztec Empire"), ui->listWidget);
-    QListWidgetItem* item7 =new QListWidgetItem(tr("France"), ui->listWidget);
-    QListWidgetItem* item8 = new QListWidgetItem(tr("Iroquois"), ui->listWidget);
-    QListWidgetItem* item9 = new QListWidgetItem(tr("Greece"), ui->listWidget);
-    QListWidgetItem* item10 = new QListWidgetItem(tr("Roman Empire"), ui->listWidget);
-    QListWidgetItem* item11 = new QListWidgetItem(tr("Russia"), ui->listWidget);
-    QListWidgetItem* item12 = new QListWidgetItem(tr("England"), ui->listWidget);
-    QListWidgetItem* item13 = new QListWidgetItem(tr("Egypt"), ui->listWidget);
-    QListWidgetItem* item14 = new QListWidgetItem(tr("Japan"), ui->listWidget);
-    QListWidgetItem* item15 = new QListWidgetItem(tr("Persia"), ui->listWidget);
-    QListWidgetItem* item16 = new QListWidgetItem(tr("Arabia"), ui->listWidget);
+    QListWidgetItem* item1 =new QListWidgetItem(tr("China"), ui->civListWidget);
+    QListWidgetItem* item2 =new QListWidgetItem(tr("Germany"), ui->civListWidget);
+    QListWidgetItem* item3 =new QListWidgetItem(tr("India"), ui->civListWidget);
+    QListWidgetItem* item4 = new QListWidgetItem(tr("United States of America"),ui->civListWidget);
+    QListWidgetItem* item5 =new QListWidgetItem(tr("Mongolia"), ui->civListWidget);
+    QListWidgetItem* item6 =new QListWidgetItem(tr("Aztec Empire"), ui->civListWidget);
+    QListWidgetItem* item7 =new QListWidgetItem(tr("France"), ui->civListWidget);
+    QListWidgetItem* item8 = new QListWidgetItem(tr("Iroquois"), ui->civListWidget);
+    QListWidgetItem* item9 = new QListWidgetItem(tr("Greece"), ui->civListWidget);
+    QListWidgetItem* item10 = new QListWidgetItem(tr("Roman Empire"), ui->civListWidget);
+    QListWidgetItem* item11 = new QListWidgetItem(tr("Russia"), ui->civListWidget);
+    QListWidgetItem* item12 = new QListWidgetItem(tr("England"), ui->civListWidget);
+    QListWidgetItem* item13 = new QListWidgetItem(tr("Egypt"), ui->civListWidget);
+    QListWidgetItem* item14 = new QListWidgetItem(tr("Japan"), ui->civListWidget);
+    QListWidgetItem* item15 = new QListWidgetItem(tr("Persia"), ui->civListWidget);
+    QListWidgetItem* item16 = new QListWidgetItem(tr("Arabia"), ui->civListWidget);
+    QListWidgetItem* item17 = new QListWidgetItem(tr("Random"), ui->civListWidget);
 
 
-    QIcon* icon1 = new QIcon();
-    QIcon* icon2 = new QIcon();
-    QIcon* icon3 = new QIcon();
-    QIcon* icon4 = new QIcon();
-    QIcon* icon5 = new QIcon();
-    QIcon* icon6 = new QIcon();
-    QIcon* icon7 = new QIcon();
-    QIcon* icon8 = new QIcon();
-    QIcon* icon9 = new QIcon();
-    QIcon* icon10 = new QIcon();
-    QIcon* icon11 = new QIcon();
-    QIcon* icon12 = new QIcon();
-    QIcon* icon13 = new QIcon();
-    QIcon* icon14 = new QIcon();
-    QIcon* icon15 = new QIcon();
-    QIcon* icon16 = new QIcon();
     //add the icon that correspond to the civ
-    icon1->addFile("Assets/Leaders/Icons/CHINA.png");
-    icon2->addFile("Assets/Leaders/Icons/GERMANY2.png");
-    icon3->addFile("Assets/Leaders/Icons/INDIA.png");
-    icon4->addFile("Assets/Leaders/Icons/USA.png");
-    icon5->addFile("Assets/Leaders/Icons/MONGOLIA.jpg");
-    icon6->addFile("Assets/Leaders/Icons/AZTEC.png");
-    icon7->addFile("Assets/Leaders/Icons/FRANCE.png");
-    icon8->addFile("Assets/Leaders/Icons/IROQUOIS.png");
-    icon9->addFile("Assets/Leaders/Icons/GREECE.png");
-    icon10->addFile("Assets/Leaders/Icons/ROME.png");
-    icon11->addFile("Assets/Leaders/Icons/RUSSIA.png");
-    icon12->addFile("Assets/Leaders/Icons/ENGLAND.png");
-    icon13->addFile("Assets/Leaders/Icons/EGYPT.png");
-    icon14->addFile("Assets/Leaders/Icons/JAPAN.png");
-    icon15->addFile("Assets/Leaders/Icons/PERSIA.png");
-    icon16->addFile("Assets/Leaders/Icons/ARABIA.png");
-
-    item1->setIcon(*icon1);
-    item2->setIcon(*icon2);
-    item3->setIcon(*icon3);
-    item4->setIcon(*icon4);
-    item5->setIcon(*icon5);
-    item6->setIcon(*icon6);
-    item7->setIcon(*icon7);
-    item8->setIcon(*icon8);
-    item9->setIcon(*icon9);
-    item10->setIcon(*icon10);
-    item11->setIcon(*icon11);
-    item12->setIcon(*icon12);
-    item13->setIcon(*icon13);
-    item14->setIcon(*icon14);
-    item15->setIcon(*icon15);
-    item16->setIcon(*icon16);
-
-    ui->listWidget->addItem(item1);
-    ui->listWidget->addItem(item2);
-    ui->listWidget->addItem(item3);
-    ui->listWidget->addItem(item4);
-    ui->listWidget->addItem(item5);
-    ui->listWidget->addItem(item6);
-    ui->listWidget->addItem(item7);
-    ui->listWidget->addItem(item8);
-    ui->listWidget->addItem(item9);
-    ui->listWidget->addItem(item10);
-    ui->listWidget->addItem(item11);
-    ui->listWidget->addItem(item12);
-    ui->listWidget->addItem(item13);
-    ui->listWidget->addItem(item14);
-    ui->listWidget->addItem(item15);
-    ui->listWidget->addItem(item16);
-
+    icon4 = QIcon("Assets/Leaders/Icons/USA.png");
+    icon2 = QIcon("Assets/Leaders/Icons/GERMANY2.png");
+    icon3 = QIcon("Assets/Leaders/Icons/INDIA.png");
+    icon1 = QIcon("Assets/Leaders/Icons/CHINA.png");
+    icon5 = QIcon("Assets/Leaders/Icons/MONGOLIA.jpg");
+    icon6 = QIcon("Assets/Leaders/Icons/AZTEC.png");
+    icon7 = QIcon("Assets/Leaders/Icons/FRANCE.png");
+    icon8 = QIcon("Assets/Leaders/Icons/IROQUOIS.png");
+    icon9 = QIcon("Assets/Leaders/Icons/GREECE.png");
+    icon10 = QIcon("Assets/Leaders/Icons/ROME.png");
+    icon11 = QIcon("Assets/Leaders/Icons/RUSSIA.png");
+    icon12 = QIcon("Assets/Leaders/Icons/ENGLAND.png");
+    icon13 = QIcon("Assets/Leaders/Icons/EGYPT.png");
+    icon14 = QIcon("Assets/Leaders/Icons/JAPAN.png");
+    icon15 = QIcon("Assets/Leaders/Icons/PERSIA.png");
+    icon16 = QIcon("Assets/Leaders/Icons/ARABIA.png");
+    icon17 = QIcon("Assets/Leaders/Icons/unknown.png");
 
     //Initialize the pics that correpsond to the civs
-    pic = QPixmap("Assets/Leaders/Mao.jpg");
     pic2 = QPixmap("Assets/Leaders/George_head.jpg");
     pic3 = QPixmap("Assets/Leaders/bismark.jpg");
     pic4 = QPixmap("Assets/Leaders/gandhi.jpg");
+    pic = QPixmap("Assets/Leaders/Mao.jpg");
     pic5 = QPixmap("Assets/Leaders/khan.jpg");
     pic6 = QPixmap("Assets/Leaders/montezuma.jpg");
     pic7 = QPixmap("Assets/Leaders/napoleon.jpg");
@@ -138,15 +93,113 @@ ClientOptions::ClientOptions(QWidget *parent, bool fullscreen) :
     pic14 = QPixmap("Assets/Leaders/Oda_Nobunga.jpg");
     pic15 = QPixmap("Assets/Leaders/Cyrus.jpg");
     pic16 = QPixmap("Assets/Leaders/Harun-Rashid.jpg");
+    pic17 = QPixmap("Assets/Leaders/random.jpg");
 
-    ui->label_3->setText("Gandhi");
-    ui->label->setPixmap(pic4);
+    item1->setIcon(icon1);
+    item2->setIcon(icon2);
+    item3->setIcon(icon3);
+    item4->setIcon(icon4);
+    item5->setIcon(icon5);
+    item6->setIcon(icon6);
+    item7->setIcon(icon7);
+    item8->setIcon(icon8);
+    item9->setIcon(icon9);
+    item10->setIcon(icon10);
+    item11->setIcon(icon11);
+    item12->setIcon(icon12);
+    item13->setIcon(icon13);
+    item14->setIcon(icon14);
+    item15->setIcon(icon15);
+    item16->setIcon(icon16);
+    item17->setIcon(icon17);
 
-    ui->label->setScaledContents(true);
-    ui->pushButton->setFlat(true);
+    ui->civListWidget->addItem(item1);
+    ui->civListWidget->addItem(item2);
+    ui->civListWidget->addItem(item3);
+    ui->civListWidget->addItem(item4);
+    ui->civListWidget->addItem(item5);
+    ui->civListWidget->addItem(item6);
+    ui->civListWidget->addItem(item7);
+    ui->civListWidget->addItem(item8);
+    ui->civListWidget->addItem(item9);
+    ui->civListWidget->addItem(item10);
+    ui->civListWidget->addItem(item11);
+    ui->civListWidget->addItem(item12);
+    ui->civListWidget->addItem(item13);
+    ui->civListWidget->addItem(item14);
+    ui->civListWidget->addItem(item15);
+    ui->civListWidget->addItem(item16);
+    ui->civListWidget->addItem(item17);
 
-    ui->hostIP->setText("10.74.17.34");
+    ui->playerLeaderName->setText(username);
+    ui->playerNationName->setText("Random");
+    ui->playerLeaderImage->setPixmap(pic17);
+    ui->playerMessageBox->setPlaceholderText("Say something...");
+    ui->playerLeaderImage->setScaledContents(true);
+    ui->readyPB->setEnabled(false);
+    ClientHandler::instance()->SetClientOptionsObject(this);
 
+}
+
+void ClientOptions::UpdateServerInfo(MessageDataType msgData)
+{
+    ui->serverView->clear();
+
+    QString info = msgData.data;
+    qDebug() << "[ClientOptions]" << info;
+    QStringList sLst = info.split(';');
+    QStringList sl;
+    QString display;
+    // 4 data format: sl[0] = Username, sl[1] = LeaderName, sl[2] = NationName, sl[3] = AI flag
+    // 3 data format: sl[0] = Username, sl[1] = NationName, sl[2] = AI flag
+
+    foreach(QString str, sLst)
+    {
+        if(str != "" && str != " ")
+        {
+            sl = str.split(',');
+            if(sl.length() == 4)
+            {
+                display = "[" + (sl[3] == "true" ? "AI" : sl[0]) + "] " + sl[1] + " (" + sl[2] + ")";
+
+                if(GetNationEnum(sl[2]) != Random)
+                    ui->civListWidget->item(GetNationEnum(sl[2]))->setFlags(ui->civListWidget->item(GetNationEnum(sl[2]))->flags() & ~Qt::ItemIsEnabled);
+            }
+            else if(sl.length() == 3)
+            {
+                display = "[" + (sl[2] == "true" ? QString("AI") : QString("Human")) + "] " + sl[0] + " (" + sl[1] + ")";
+
+                if(GetNationEnum(sl[1]) != Random)
+                    ui->civListWidget->item(GetNationEnum(sl[1]))->setFlags(ui->civListWidget->item(GetNationEnum(sl[1]))->flags() & ~Qt::ItemIsEnabled);
+            }
+
+            ui->serverView->addItem(new QListWidgetItem(display));
+        }
+    }
+}
+
+void ClientOptions::ReadChatMessage(MessageDataType msgData)
+{
+    ui->chatBox->append("[" + msgData.sender + "] " + msgData.data + "\n");
+}
+
+void ClientOptions::StartGame()
+{
+    static int i = 0;
+    if(i == 9)
+    {
+        if(game != NULL)
+            delete game;
+
+        game = new ClientManager();
+        game->show();
+        this->close();
+    }
+    else
+    {
+        ui->readyPB->setText(QString("%1").arg(10 - i));
+        i++;
+    }
 }
 
 ClientOptions::~ClientOptions()
@@ -155,25 +208,38 @@ ClientOptions::~ClientOptions()
     delete game;
 }
 
-void ClientOptions::on_pushButton_clicked()
+void ClientOptions::on_readyPB_clicked()
 {
+    /*
+     * 1) Parse user info into a formatted string
+     * 2) Send to server
+     * 3) Await load game signal from server
+     */
+
+    MessageDataType msg;
+    msg.type = PLAYER_SETUP_UPDATE;
+    msg.sender = user;
+
+    QString str;
     QListWidgetItem* selectedItem;
-    if(ui->listWidget->currentItem() == NULL)
+    if(ui->civListWidget->currentItem() == NULL)
     {
-        selectedItem = ui->listWidget->item(0);
-    }else
+        selectedItem = ui->civListWidget->item(0);
+    }
+    else
     {
-        selectedItem = ui->listWidget->currentItem();
+        selectedItem = ui->civListWidget->currentItem();
     }
 
 
-//    CivInfo info = {selectedItem->text(),ui->label_3->text(),"red","blue",mapSize1,mapSize2};//This is data that needs passed
+//    CivInfo info = {selectedItem->text(),ui->playerLeaderName->text(),"red","blue",mapSize1,mapSize2};//This is data that needs passed
     if(game != NULL)
     {
         delete game;
     }
+
     //Set the player as the correct country
-    switch(ui->listWidget->currentRow())
+    switch(ui->civListWidget->currentRow())
     {
     case 0:
         player = China;
@@ -224,105 +290,146 @@ void ClientOptions::on_pushButton_clicked()
         player = Arabia;
         break;
     default:
-        player = India;
+        player = Random;
         break;
     }
+
+    str.append(user + "," + ui->playerLeaderName->text() + "," + ui->playerNationName->text() + ",false");
+    msg.data = str;
+
+    ClientHandler::instance()->sendMessage(msg);
+    ui->civListWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->civListWidget->setEnabled(false);
+    ui->readyPB->setText("Waiting for\ngame start");
+    ui->readyPB->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+    ui->readyPB->setEnabled(false);
+
     //Play a notification
-    QMediaPlayer *musicPlayer = new QMediaPlayer();
-    musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
-    musicPlayer->setVolume(50);
-    musicPlayer->play();
+//    QMediaPlayer *musicPlayer = new QMediaPlayer();
+//    musicPlayer->setMedia(QUrl::fromLocalFile("Assets/Sound/notificationunitkilled.wav"));
+//    musicPlayer->setVolume(50);
+//    musicPlayer->play();
+
     //Start new game
-    game = new ClientManager(0, FullScreen, player, ui->hostIP->displayText(), ui->username->displayText());
-    this->close();
+//    game = new ClientManager(0, FullScreen, player, ui->hostIP->displayText(), ui->username->displayText());
+//    this->close();
 
 }
 
 //This function updates the picture and text boxes to correpsond to currently selected civ
 void ClientOptions::updateLeader()
 {
-    switch(ui->listWidget->currentRow())
+    switch(ui->civListWidget->currentRow())
     {
     case 0:
-        ui->label_3->setText("Mao Zedong");
-        ui->label->setPixmap(pic);
+        ui->playerLeaderName->setText("Mao Zedong");
+        ui->playerNationName->setText("China");
+        ui->playerLeaderImage->setPixmap(pic);
         break;
     case 1:
-        ui->label_3->setText("Otto Von Bismarck");
-        ui->label->setPixmap(pic3);
+        ui->playerLeaderName->setText("Otto Von Bismarck");
+        ui->playerNationName->setText("Germany");
+        ui->playerLeaderImage->setPixmap(pic3);
         break;
     case 2:
-        ui->label_3->setText("Gandhi");
-        ui->label->setPixmap(pic4);
+        ui->playerLeaderName->setText("Gandhi");
+        ui->playerNationName->setText("India");
+        ui->playerLeaderImage->setPixmap(pic4);
         break;
     case 3:
-        ui->label_3->setText("George Washington");
-        ui->label->setPixmap(pic2);
+        ui->playerLeaderName->setText("George Washington");
+        ui->playerNationName->setText("United States of America");
+        ui->playerLeaderImage->setPixmap(pic2);
         break;
     case 4:
-        ui->label_3->setText("Genghis Khan");
-        ui->label->setPixmap(pic5);
+        ui->playerLeaderName->setText("Genghis Khan");
+        ui->playerNationName->setText("Mongolia");
+        ui->playerLeaderImage->setPixmap(pic5);
         break;
     case 5:
-        ui->label_3->setText("Montezuma");
-        ui->label->setPixmap(pic6);
+        ui->playerLeaderName->setText("Montezuma");
+        ui->playerNationName->setText("Aztecs");
+        ui->playerLeaderImage->setPixmap(pic6);
         break;
     case 6:
-        ui->label_3->setText("Napoleon Bonaparte");
-        ui->label->setPixmap(pic7);
+        ui->playerLeaderName->setText("Napoleon Bonaparte");
+        ui->playerNationName->setText("France");
+        ui->playerLeaderImage->setPixmap(pic7);
         break;
     case 7:
-        ui->label_3->setText("Hiawatha");
-        ui->label->setPixmap(pic8);
+        ui->playerLeaderName->setText("Hiawatha");
+        ui->playerNationName->setText("Iroqois");
+        ui->playerLeaderImage->setPixmap(pic8);
         break;
     case 8:
-        ui->label_3->setText("Alexander");
-        ui->label->setPixmap(pic9);
+        ui->playerLeaderName->setText("Alexander");
+        ui->playerNationName->setText("Greece");
+        ui->playerLeaderImage->setPixmap(pic9);
         break;
     case 9:
-        ui->label_3->setText("Julius Caesar");
-        ui->label->setPixmap(pic10);
+        ui->playerLeaderName->setText("Julius Caesar");
+        ui->playerNationName->setText("Rome");
+        ui->playerLeaderImage->setPixmap(pic10);
         break;
     case 10:
-        ui->label_3->setText("Josef Stalin");
-        ui->label->setPixmap(pic11);
+        ui->playerLeaderName->setText("Josef Stalin");
+        ui->playerNationName->setText("Russia");
+        ui->playerLeaderImage->setPixmap(pic11);
         break;
     case 11:
-        ui->label_3->setText("Elizabeth");
-        ui->label->setPixmap(pic12);
+        ui->playerLeaderName->setText("Elizabeth");
+        ui->playerNationName->setText("England");
+        ui->playerLeaderImage->setPixmap(pic12);
         break;
     case 12:
-        ui->label_3->setText("Ramesses");
-        ui->label->setPixmap(pic13);
+        ui->playerLeaderName->setText("Ramesses");
+        ui->playerNationName->setText("Egypt");
+        ui->playerLeaderImage->setPixmap(pic13);
         break;
     case 13:
-        ui->label_3->setText("Oda Nobunaga");
-        ui->label->setPixmap(pic14);
+        ui->playerLeaderName->setText("Oda Nobunaga");
+        ui->playerNationName->setText("Japan");
+        ui->playerLeaderImage->setPixmap(pic14);
         break;
     case 14:
-        ui->label_3->setText("Cyrus");
-        ui->label->setPixmap(pic15);
+        ui->playerLeaderName->setText("Cyrus");
+        ui->playerNationName->setText("Persia");
+        ui->playerLeaderImage->setPixmap(pic15);
         break;
     case 15:
-        ui->label_3->setText("Harun al-Rashid");
-        ui->label->setPixmap(pic16);
+        ui->playerLeaderName->setText("Harun al-Rashid");
+        ui->playerNationName->setText("Arabia");
+        ui->playerLeaderImage->setPixmap(pic16);
         break;
     default:
-        ui->label_3->setText("Gandhi");
-        ui->label->setPixmap(pic4);
+        ui->playerLeaderName->setText("Random");
+        ui->playerNationName->setText("Random");
+        ui->playerLeaderImage->setPixmap(pic17);
         break;
     }
 }
 
 //This calls the update functions when the item selecttion is changed
-void ClientOptions::on_listWidget_itemSelectionChanged()
+void ClientOptions::on_civListWidget_itemSelectionChanged()
 {
-    ui->pushButton->setFlat(false);
-    this->updateLeader();
-    this->update();
+    if((ui->civListWidget->currentItem()->flags() & Qt::ItemIsEnabled) == 32)
+    {
+        ui->readyPB->setEnabled(true);
+        this->updateLeader();
+        this->update();
+    }
 }
 
-void ClientOptions::on_pushButton_2_clicked()
+void ClientOptions::on_backPB_clicked()
 {
-    this->close();
+    if(ClientHandler::instance()->disconnectFromHost())
+        this->close();
+}
+
+void ClientOptions::on_playerMessageBox_returnPressed()
+{
+    ClientHandler::instance()->sendMessage(MessageDataType{CLIENT_TO_ALL, user , ui->playerMessageBox->text()});
+    ui->chatBox->append("[" + user + "] " + ui->playerMessageBox->text() + "\n");
+    ui->playerMessageBox->clear();
+
 }

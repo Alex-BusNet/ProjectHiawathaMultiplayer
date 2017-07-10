@@ -1,10 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "Client/clientoptions.h"
 #include "Server/serveroptions.h"
 #include "Common/about.h"
 #include <QMainWindow>
+#include <Client/clientconnectdialog.h>
 
 namespace Ui {
 class MainWindow;
@@ -32,7 +32,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ServerOptions *sOptions;
-    ClientOptions *cOptions;
+    ClientConnectDialog *ccd;
     About *about;
     bool fullscreen;
     QPixmap *bkgnd, *buttonBorder;

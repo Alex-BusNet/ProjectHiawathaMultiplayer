@@ -14,28 +14,6 @@
    <string>Project Hiawatha</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="client">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>20</y>
-      <width>201</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Client</string>
-    </property>
-    <property name="default">
-     <bool>false</bool>
-    </property>
-    <property name="flat">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="exit">
     <property name="geometry">
      <rect>
@@ -167,13 +145,26 @@
      <string>Launch Server</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="client">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>20</y>
+      <width>201</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Launch Client</string>
+    </property>
+   </widget>
    <zorder>mainBackground</zorder>
    <zorder>menuButtonBorder</zorder>
-   <zorder>client</zorder>
    <zorder>exit</zorder>
    <zorder>fullscreen</zorder>
    <zorder>controls</zorder>
    <zorder>server</zorder>
+   <zorder>client</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
