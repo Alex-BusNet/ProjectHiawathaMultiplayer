@@ -146,7 +146,6 @@ void ClientOptions::UpdateServerInfo(MessageDataType msgData)
     ui->serverView->clear();
 
     QString info = msgData.data;
-    qDebug() << "[ClientOptions]" << info;
     QStringList sLst = info.split(';');
     QStringList sl;
     QString display;
@@ -185,19 +184,18 @@ void ClientOptions::ReadChatMessage(MessageDataType msgData)
 
 void ClientOptions::StartGame(int count)
 {
-    qDebug() << "[ClientOptions]" << count;
-//    if(count == 0)
-//    {
+    if(count == 10)
+    {
         if(game != NULL)
             delete game;
 
         game = new ClientManager();
         this->close();
-//    }
-//    else
-//    {
-//        ui->readyPB->setText(QString("%1").arg(10 - count));
-//    }
+    }
+    else
+    {
+        ui->readyPB->setText(QString("%1").arg(10 - count));
+    }
 }
 
 ClientOptions::~ClientOptions()

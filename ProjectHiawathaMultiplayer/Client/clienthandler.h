@@ -42,6 +42,7 @@ private:
     QJsonDocument doc;
     int port = 0;
     QHostAddress ip = QHostAddress("0.0.0.0");
+    QString msgStr;
 };
 
 #endif // CLIENTHANDLER_H

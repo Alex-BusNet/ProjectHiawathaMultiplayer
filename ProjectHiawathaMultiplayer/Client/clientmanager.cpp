@@ -20,22 +20,23 @@ ClientManager::ClientManager(QWidget *parent, bool fullscreen, Nation player, QS
     this->IP = IP;
     this->username = username;
 
-    QMessageBox *mbox = new QMessageBox();
-    mbox->setWindowTitle("Waiting...");
-    mbox->setText("Waiting on server.");
-    mbox->setStyleSheet(warStyle);
+//    QMessageBox *mbox = new QMessageBox();
+//    mbox->setWindowTitle("Waiting...");
+//    mbox->setText("Waiting on server.");
+//    mbox->setStyleSheet(warStyle);
 
     InitClientVariables(fullscreen);
-    mbox->show();
+//    mbox->show();
 
-    while(!mapReady || !civsReady) {;}
+    qDebug() << "[ClientHandler]" << "Waiting on server...";
+//    while(!mapReady || !civsReady) {;}
 
-    if(mbox->isVisible())
-        mbox->hide();
+//    if(mbox->isVisible())
+//        mbox->hide();
 
-    qDebug() << "[ClientManager]" << "All Data received. Initializing Render data";
-    InitRenderData();
-    qDebug() << "[ClientManager]" << "Done";
+//    qDebug() << "[ClientManager]" << "All Data received. Initializing Render data";
+//    InitRenderData();
+//    qDebug() << "[ClientManager]" << "Done";
 
 }
 
@@ -46,6 +47,7 @@ ClientManager::~ClientManager()
 
 void ClientManager::LoadCivData(QJsonArray arr)
 {
+    qDebug() << "[ClientManager]" << "LoadCivData";
     for(int i = 0; i < arr.size(); i++)
     {
         Civilization* civ = new Civilization(arr[i].toObject());
@@ -56,17 +58,20 @@ void ClientManager::LoadCivData(QJsonArray arr)
     }
 
     techLabel->setText(QString(" %1 ").arg(civList[thisPlayer]->getCurrentTech()->getName()));
-    qDebug() << "[ClientManager]" << "Local player: " << thisPlayer;
     civsReady = true;
+
+    qDebug() << "[ClientManager]" << "Local player: " << thisPlayer;
 }
 
 void ClientManager::LoadMapData(QJsonObject obj)
 {
+    qDebug() <<"[ClienManager]" << "LoadMapData";
     map->ReadMapSaveData(obj);
 }
 
 void ClientManager::LoadDiploData(QJsonObject obj)
 {
+    qDebug() << "[ClientManager]" << "LoadDiploData";
     diplo->ReadDiploSaveData(obj);
 }
 
@@ -74,36 +79,48 @@ void ClientManager::UpdateGameData(MessageTypes type, QJsonObject obj)
 {
     if(type == MAP_UPDATE_DATA)
     {
+        qDebug() << "[ClientHandler]" << "Map Update Data recieved.";
         map->ReadMapUpdateData(obj["tileupdates"].toArray());
         mapReady = true;
     }
     else if(type == DIPLO_UPDATE_DATA)
     {
+        qDebug() << "[ClientHandler]" << "Diplo Update Data recieved.";
         diplo->ReadDiploUpdateData(obj);
     }
     else if(type == CIV_UPDATE_DATA)
     {
+        qDebug() << "[ClientHandler]" << "Civ Update Data recieved.";
         // obj contains array of civs that have been updated
     }
     else if(type == UNIT_UPDATE_DATA)
     {
-
+        qDebug() << "[ClientHandler]" << "Unit Update Data recieved.";
     }
     else if(type == BUILDING_UPDATE_DATA)
     {
+        qDebug() << "[ClientHandler]" << "Building Update Data recieved.";
+    }
 
+    if(mapReady && civsReady)
+    {
+        InitRenderData();
+        updateTimer->start();
     }
 }
 
 void ClientManager::paintEvent(QPaintEvent *event)
 {
-    QPainter paint(this);
-    paint.fillRect(*playerInfoRect, QBrush(Qt::black));
-    paint.fillRect(*gameStatusRect, QBrush(Qt::black));
-    paint.setPen(Qt::white);
-    paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
+    if(mapReady && civsReady && renderReady)
+    {
+        QPainter paint(this);
+        paint.fillRect(*playerInfoRect, QBrush(Qt::black));
+        paint.fillRect(*gameStatusRect, QBrush(Qt::black));
+        paint.setPen(Qt::white);
+        paint.drawText(*playerInfoRect, (Qt::AlignRight | Qt::AlignVCenter), QString("Turn %1 | %2 %3  ").arg(gameTurn).arg(abs(year)).arg((year < 0) ? "BC" : "AD"));
 
-    paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
+        paint.drawText(*gameStatusRect, (Qt::AlignHCenter | Qt::AlignVCenter), statusMessage);
+    }
 }
 
 void ClientManager::Render()
@@ -233,6 +250,7 @@ void ClientManager::InitClientVariables(bool fullscreen)
     fortify = false;
     mapReady = false;
     civsReady = false;
+    renderReady = false;
 
     currentProductionName = "No Production Selected";
 
@@ -254,7 +272,7 @@ void ClientManager::InitClientVariables(bool fullscreen)
     updateTimer = new QTimer();
     updateTimer->setInterval(17);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateTiles()));
-    updateTimer->start();
+//    updateTimer->start();
 
     qsrand(QTime::currentTime().msec());
     this->InitButtons();
@@ -666,6 +684,7 @@ void ClientManager::InitRenderData()
 
     techLabel->setText(QString(" %1 ").arg(civList.at(thisPlayer)->getCurrentTech()->getName()));
     diplo->UpdateLeader(thisPlayer);
+    renderReady = true;
 }
 
 void ClientManager::UpdateTiles()

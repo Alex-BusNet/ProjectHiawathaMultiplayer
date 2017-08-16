@@ -70,7 +70,7 @@ private:
 
     float year, yearPerTurn;
 
-    bool mapReady, civsReady;
+    bool mapReady, civsReady, renderReady;
     bool redrawTile;
     bool cityScreenVisible, techTreeVisible, diploVisible;
     bool toggleOn, relocateUnit, turnEnded, turnStarted;

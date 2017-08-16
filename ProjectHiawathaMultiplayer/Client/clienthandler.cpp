@@ -107,10 +107,14 @@ void ClientHandler::disconnected()
 
 void ClientHandler::ready()
 {
-    QString str = QString(socket->readAll());
-    qDebug() << "[ClientHandler]" << str;
+    msgStr += QString(socket->readAll());
+
+    if(!msgStr.endsWith("__<=>"))
+        return;
+
+    qDebug() << "[ClientHandler]" << msgStr;
     MessageDataType msg;
-    QStringList sl = str.split("__");
+    QStringList sl = msgStr.split("__");
     msg.type = sl[0].toInt();
     msg.sender = sl[1];
     msg.data = sl[2];
@@ -146,4 +150,6 @@ void ClientHandler::ready()
         }
 
     }
+
+    msgStr = "";
 }
