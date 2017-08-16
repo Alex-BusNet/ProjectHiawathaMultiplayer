@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <Server/messagequeue.h>
 #include <Common/datatypes.h>
+#include <QHostAddress>
 
 class ConnectionManager
 {
@@ -19,8 +20,9 @@ public:
     bool CanAddConnection();
     void BroadcastMessage(MessageDataType msgData, QTcpSocket *sender);
     void SendSingleMessage(MessageDataType msgData, QTcpSocket *receiver);
-    int GetConnectionLocation(QTcpSocket *s);
 
+    int GetConnectionLocation(QTcpSocket *s);
+    QTcpSocket* GetSocket(int index);
 private:
     int maxConnections;
     QList<QTcpSocket*> clients;

@@ -122,7 +122,7 @@ ServerOptions::ServerOptions(QWidget *parent) :
     ui->leaderPortrait->setScaledContents(true);
     ui->leaderPortrait->setPixmap(pic17);
     ui->civSelect->setCurrentIndex(16);
-    ui->IPEntry->setText("192.168.1.140");
+    ui->IPEntry->setText("127.0.0.1");
 
     maxPlayers = 2;
     humanCount = 2;
@@ -132,7 +132,8 @@ ServerOptions::ServerOptions(QWidget *parent) :
     {
         CivInfo *ci = new CivInfo{"Random", Random, false, *nationIcons.at(16)};
         civs.push_back(ci);
-        ui->civList->addItem(new QListWidgetItem(ci->civIcon, QString(ci->civName + "     [Human]")));        ui->civList->item(i)->setBackground(QBrush(Qt::white));
+        ui->civList->addItem(new QListWidgetItem(ci->civIcon, QString(ci->civName + "     [Human]")));
+        ui->civList->item(i)->setBackground(QBrush(Qt::white));
     }
     ui->aiRB->setEnabled(false);
 
@@ -174,6 +175,7 @@ void ServerOptions::on_startServer_clicked()
         ui->aiRB->setEnabled(false);
         ui->humanRB->setEnabled(false);
         ui->civSelect->setEnabled(false);
+
     }
 
 //    qDebug() << mapSize1 << mapSize2 << aiCount;

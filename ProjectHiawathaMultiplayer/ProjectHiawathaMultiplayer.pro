@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network concurrent
 CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets multimedia
@@ -32,7 +32,20 @@ SOURCES += main.cpp\
     Common/technology.cpp \
     Common/queuedata.cpp \
     Client/clientconnectdialog.cpp \
-    Client/clienthandler.cpp
+    Client/clienthandler.cpp \
+    Common/diplomacy.cpp \
+    Common/map.cpp \
+    Common/techtree.cpp \
+    Common/unitcontroller.cpp \
+    Client/cityscreen.cpp \
+    Client/notificationsystem.cpp \
+    Client/renderer.cpp \
+    Client/gamescene.cpp \
+    Client/gameview.cpp \
+    Server/ai_controller.cpp \
+    Server/ai_operational.cpp \
+    Server/ai_strategic.cpp \
+    Server/ai_tactical.cpp
 
 HEADERS  += mainwindow.h \
     Client/clientmanager.h \
@@ -60,11 +73,27 @@ HEADERS  += mainwindow.h \
     Common/technology.h \
     Common/queuedata.h \
     Client/clientconnectdialog.h \
-    Client/clienthandler.h
+    Client/clienthandler.h \
+    Common/diplomacy.h \
+    Common/map.h \
+    Common/techtree.h \
+    Common/unitcontroller.h \
+    Client/cityscreen.h \
+    Client/notificationsystem.h \
+    Client/renderer.h \
+    Client/gamescene.h \
+    Client/gameview.h \
+    Server/ai_controller.h \
+    Server/ai_operational.h \
+    Server/ai_strategic.h \
+    Server/ai_tactical.h
 
 FORMS    += mainwindow.ui \
     Client/clientoptions.ui \
     Common/about.ui \
     Server/serveroptions.ui \
-    servermanager.ui \
-    Client/clientconnectdialog.ui
+    Client/clientconnectdialog.ui \
+    Common/diplomacy.ui \
+    Common/techtree.ui \
+    Client/cityscreen.ui \
+    Server/servermanager.ui

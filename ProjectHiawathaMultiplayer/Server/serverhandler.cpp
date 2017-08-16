@@ -28,10 +28,23 @@ bool ServerHandler::StartServer(QString IP, QString setupInfo, int maxPlayers, i
         qDebug() << "[ServerHandler]" << serverInfo;
         SetMessageString();
         return true;
+
+        for(int i = 0 ; i < max; i++)
+        {
+            playerSelections.push_back((int)Random);
+            aiStatus.push_back(false);
+        }
+
+        for(int i = 0; i < ai; i++)
+        {
+            playerSelections.push_back((int)Random);
+            aiStatus.push_back(true);
+        }
     }
     else
     {
         MessageQueue::instance()->put("SYS;Setup error");
+        qDebug() << "[ServerHandler]" << "Server setup error";
         return false;
     }
 }
@@ -41,6 +54,19 @@ void ServerHandler::StopServer()
     qDebug() << "[ServerHandler]" << "stopServer()";
     ConnectionManager::instance()->RemoveClient();
     this->deleteLater();
+}
+
+void ServerHandler::SendClientUpdate(MessageTypes type, QString msg)
+{
+
+    if(type == TURN_END || type == TURN_START)
+    {
+        ConnectionManager::instance()->SendSingleMessage(MessageDataType{type, "SYS", "StartTurn"}, ConnectionManager::instance()->GetSocket(msg.toInt()));
+    }
+    else
+    {
+        ConnectionManager::instance()->BroadcastMessage(MessageDataType{type, "SYS", msg}, NULL);
+    }
 }
 
 void ServerHandler::SetMessageString()
@@ -73,6 +99,7 @@ void ServerHandler::SendMessage()
     QTcpSocket *s = qobject_cast<QTcpSocket*>(sender());
     QString str(s->readAll());
     QStringList sl = str.split("__");
+    qDebug() << "[ServerHandler]" << sl;
 
     if(sl[0].toInt() == CLIENT_TO_ALL)
     {
@@ -83,6 +110,7 @@ void ServerHandler::SendMessage()
         int updated = ConnectionManager::instance()->GetConnectionLocation(s);
         playersReady++;
         serverInfo[updated] = sl[2];
+//        playerSelections.replace(updated, (int)GetNationEnum(sl[2].split(",")[2]));
         SetMessageString();
         ConnectionManager::instance()->BroadcastMessage(MessageDataType{PLAYER_SETUP_UPDATE, "SYS", serverInfoStr}, s);
         MessageQueue::put(serverInfoStr);
@@ -115,19 +143,24 @@ void ServerHandler::StartGame()
 {
     static int i = 0;
 
-    if(i == 10)
-    {
-        countdown->stop();
+    if(i == 9)
+        ConnectionManager::instance()->BroadcastMessage(MessageDataType{GAME_START, "SYS", QString("%1").arg(i)}, NULL);
+    else
+        ConnectionManager::instance()->BroadcastMessage(MessageDataType{SYSTEM_MESSAGE, "SYS", QString("%1").arg(i)}, NULL);
 
+    if(i == 9)
+    {
         if(sm != NULL)
             delete sm;
 
-        sm = new ServerManager(0, x, y, ai);
+        sm = new ServerManager(NULL, x, y, playerSelections, aiStatus);
+        qDebug() << "[ServerHandler]" << "ServerManager Init complete";
         sm->show();
+
+        countdown->stop();
     }
     else
-    {
-        ConnectionManager::instance()->BroadcastMessage(MessageDataType{GAME_START, "SYS", QString("%1").arg(i)}, NULL);
+    {        
         i++;
     }
 }

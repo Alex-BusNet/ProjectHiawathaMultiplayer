@@ -19,7 +19,7 @@ ClientConnectDialog::ClientConnectDialog(bool fullscreen, QWidget *parent) :
 
     co = NULL;
 
-    ui->hostIP->setText("192.168.1.140");
+    ui->hostIP->setText("127.0.0.1");
     ui->username->setText("Sparta");
     ui->errorLabel->setVisible(false);
     this->fullscreen = fullscreen;
@@ -48,6 +48,7 @@ void ClientConnectDialog::on_buttonBox_accepted()
     else
     {
         ui->errorLabel->setVisible(true);
+        this->show();
     }
 }
 

@@ -43,9 +43,7 @@ Tile::Tile(int _posX, int _posY)
     HasCity = false;
     ContainsUnit = false;
     Selected = false;
-    DiscoveredByPlayer = false;
-    IsSeenByPlayer = false;
-    CanAlwaysBeSeen = false;
+    HasBeenUpdated = false;
 
     //Tile Improvement flags
     CanHaveFarm = false;
@@ -130,6 +128,58 @@ Tile::~Tile()
         delete yield;
 }
 
+bool Tile::CanBeSeenBy(int civIndex)
+{
+    if(civIndex > -1)
+        return seenBy[civIndex];
+    else
+        return false;
+}
+
+bool Tile::IsAlwaysSeenBy(int civIndex)
+{
+    if(civIndex > -1)
+        return alwaysSeenBy[civIndex];
+    else
+        return false;
+}
+
+bool Tile::HasBeenDiscoveredBy(int civIndex)
+{
+    if(civIndex > -1)
+        return discoveredBy[civIndex];
+    else
+        return false;
+}
+
+void Tile::SeeTile(int civIndex, bool state)
+{
+    if(civIndex > -1)
+        seenBy[civIndex] = state;
+}
+
+void Tile::SetAlwaysSeen(int civIndex)
+{
+    if(civIndex > -1)
+        alwaysSeenBy[civIndex] = true;
+}
+
+void Tile::DiscoverTile(int civIndex)
+{
+    if(civIndex > -1)
+        discoveredBy[civIndex] = true;
+}
+
+void Tile::InitializeSeenState(int totalCivCount)
+{
+    for(int i = 0; i < totalCivCount; i++)
+    {
+        discoveredBy.push_back(false);
+        seenBy.push_back(false);
+        alwaysSeenBy.push_back(false);
+    }
+}
+
 TileType Tile::GetTileType()
 {
     return this->type;
@@ -164,16 +214,16 @@ void Tile::SetControllingCiv(Nation civ, int civListIndex)
 {
     this->owner = civ;
     this->controllingCivListIndex = civListIndex;
-    if(controllingCivListIndex == 0)
-        CanAlwaysBeSeen = true;
+    SetAlwaysSeen(civListIndex);
+    DiscoverTile(civListIndex);
 
     if(civListIndex == -1)
     {
-        this->CanAlwaysBeSeen = false;
-        this->DiscoveredByPlayer = false;
-        this->IsSeenByPlayer = false;
+        this->SeeTile(civListIndex, false);
         this->governingCity = -1;
     }
+
+    this->HasBeenUpdated = true;
 }
 
 int Tile::GetGoverningCity()
@@ -184,11 +234,13 @@ int Tile::GetGoverningCity()
 void Tile::SetGoverningCity(int cityID)
 {
     this->governingCity = cityID;
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetTilePen(QPen pen)
 {
     this->outlinePen.setColor(pen.color());
+    this->HasBeenUpdated = true;
 }
 
 QPen Tile::GetTilePen()
@@ -199,16 +251,19 @@ QPen Tile::GetTilePen()
 void Tile::SetTileType(TileType type)
 {
     this->type = type;
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetYield(int gold, int prod, int sci, int food, int cul)
 {
     this->yield->ChangeYield(gold, prod, sci, food, cul);
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetTileImprovement(TileImprovement improvement)
 {
     this->improvement = improvement;
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetTileID(int row, int column, Tile *tile)
@@ -245,6 +300,7 @@ int Tile::GetContinent()
 void Tile::SetMoveCost(int cost)
 {
     this->moveCost = cost;
+    this->HasBeenUpdated = true;
 }
 
 int Tile::GetMoveCost()
@@ -430,11 +486,13 @@ void Tile::SetTileTexture(TileType type)
         this->tileTexture = QPixmap("Assets/Textures/Scaled/water.png");
         break;
     }
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetTileBiome(Biome biome)
 {
     this->biome = biome;
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetHexPos(int x, int y)
@@ -487,11 +545,13 @@ int Tile::fCost()
 void Tile::SetOccupyingCivListIndex(int index)
 {
     this->occupyingCivListIndex = index;
+    this->HasBeenUpdated = true;
 }
 
 void Tile::SetControllingCivListIndex(int index)
 {
     this->controllingCivListIndex = index;
+    this->HasBeenUpdated = true;
 }
 
 int Tile::GetOccupyingCivListIndex()
@@ -508,6 +568,7 @@ void Tile::SetResource(Strategic strat, Luxury lux)
 {
     this->stratResource = strat;
     this->luxResource = lux;
+    this->HasBeenUpdated = true;
 }
 
 int Tile::GetStratResource()
@@ -543,9 +604,18 @@ void Tile::WriteTileSaveData(QJsonObject &obj) const
     obj["governedby"] = governingCity;
     obj["owner"] = owner;
     obj["movecost"] = moveCost;
-    obj["canalwaysbeseen"] = CanAlwaysBeSeen;
-    obj["isseenbyplayer"] = IsSeenByPlayer;
-    obj["discoveredbyplayer"] = DiscoveredByPlayer;
+    QJsonArray asArr, dbArr, sbArr;
+
+    for(int i = 0; i < discoveredBy.size(); i++)
+    {
+        asArr.push_back(alwaysSeenBy[i]);
+        dbArr.push_back(discoveredBy[i]);
+        sbArr.push_back(seenBy[i]);
+    }
+
+    obj["canalwaysbeseen"] = asArr;
+    obj["isseenbyplayer"] = sbArr;
+    obj["discoveredbyplayer"] = sbArr;
     obj["walkable"] = Walkable;
 }
 
@@ -570,13 +640,21 @@ void Tile::ReadTileSaveData(const QJsonObject &obj)
     governingCity = obj["governedby"].toInt();
     owner = static_cast<Nation>(obj["owner"].toInt());
     moveCost = obj["movecost"].toInt();
-    CanAlwaysBeSeen = obj["canalwaysbeseen"].toBool();
-    DiscoveredByPlayer = obj["discoveredbyplayer"].toBool();
-    IsSeenByPlayer = obj["isseenbyplayer"].toBool();
+
+    QJsonArray asArr = obj["canalwaysbeseen"].toArray();
+    QJsonArray dbArr = obj["discoveredbyplayer"].toArray();
+    QJsonArray sbArr = obj["isseenbyplayer"].toArray();
+    for(int i = 0; i <asArr.size(); i++)
+    {
+        alwaysSeenBy.push_back(asArr[i].toBool());
+        discoveredBy.push_back(dbArr[i].toBool());
+        seenBy.push_back(sbArr[i].toBool());
+    }
 
     Walkable = obj["walkable"].toBool();
-
     this->SetTileTexture(type);
+
+    HasBeenUpdated = false;
 }
 
 

@@ -9,6 +9,8 @@
 
 #include "clienthandler.h"
 
+#include <QJsonDocument>
+
 Q_GLOBAL_STATIC(ClientHandler, handler)
 
 ClientHandler::ClientHandler()
@@ -44,9 +46,14 @@ void ClientHandler::SetClientOptionsObject(ClientOptions *co)
     this->co = co;
 }
 
+void ClientHandler::SetClientManagerObject(ClientManager *cm)
+{
+    qDebug() << "[ClientHandler]" << "ClientManager object set";
+    this->cm = cm;
+}
+
 void ClientHandler::sendMessage(MessageDataType msgData)
 {
-    /// TODO: Add Username and message type to message string
     if(socket == NULL)
         return;
 
@@ -108,13 +115,35 @@ void ClientHandler::ready()
     msg.sender = sl[1];
     msg.data = sl[2];
 
-    if(co != NULL)
+    if(co != NULL && cm == NULL)
     {
         if(msg.type == PLAYER_SETUP_UPDATE)
             co->UpdateServerInfo(msg);
         else if((msg.type == CLIENT_TO_ALL) || (msg.type == SYSTEM_MESSAGE))
             co->ReadChatMessage(msg);
         else if(msg.type == GAME_START)
-            co->StartGame();
+            co->StartGame(msg.data.toInt());
+    }
+    else if(cm != NULL)
+    {
+        doc = QJsonDocument::fromJson(QByteArray::fromStdString(msg.data.toStdString()));
+
+        if(msg.type == INITIAL_MAP_DATA)
+        {
+            cm->LoadMapData(doc.object());
+        }
+        else if(msg.type == INITIAL_CIV_DATA)
+        {
+            cm->LoadCivData(doc.object()["civs"].toArray());
+        }
+        else if((msg.type == MAP_UPDATE_DATA) ||
+                (msg.type == CIV_UPDATE_DATA)||
+                (msg.type == DIPLO_UPDATE_DATA) ||
+                (msg.type == UNIT_UPDATE_DATA) ||
+                (msg.type == BUILDING_UPDATE_DATA))
+        {
+            cm->UpdateGameData((MessageTypes)msg.type, doc.object());
+        }
+
     }
 }

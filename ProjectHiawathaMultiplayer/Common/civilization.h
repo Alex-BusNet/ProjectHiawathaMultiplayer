@@ -25,6 +25,7 @@ public:
     Civilization();//default, don't use
     Civilization(Nation name, bool isAI, QString leaderName);
     Civilization(QJsonObject obj, bool isAI);
+    Civilization(QJsonObject obj);
     ~Civilization();
 
     //Accessors and Mutators

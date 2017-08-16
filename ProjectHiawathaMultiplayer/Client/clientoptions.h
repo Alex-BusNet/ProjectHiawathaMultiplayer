@@ -2,7 +2,9 @@
 #define CLIENTOPTIONS_H
 
 #include <QWidget>
+#include <QMainWindow>
 #include <QListWidgetItem>
+
 #include "Client/clientmanager.h"
 #include "Common/nation.h"
 #include <Common/datatypes.h>
@@ -11,7 +13,7 @@ namespace Ui {
 class ClientOptions;
 }
 
-class ClientOptions : public QWidget
+class ClientOptions : public QMainWindow
 {
     Q_OBJECT
 
@@ -20,7 +22,7 @@ public:
 
     void UpdateServerInfo(MessageDataType msgData);
     void ReadChatMessage(MessageDataType msgData);
-    void StartGame();
+    void StartGame(int count);
     ~ClientOptions();
 
 private slots:
@@ -36,6 +38,7 @@ private slots:
 
 private:
     Ui::ClientOptions *ui;
+
     ClientManager *game;
     bool FullScreen;
     Nation player;

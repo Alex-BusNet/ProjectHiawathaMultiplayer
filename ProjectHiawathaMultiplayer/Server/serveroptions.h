@@ -87,6 +87,7 @@ private:
     void updateCivs(bool updateCount);
 
     QVector<CivInfo*> civs;
+    QVector<bool> ais;
     QVector<QPixmap*> leaderImages;
     QVector<QIcon*> nationIcons;
 };

@@ -55,10 +55,14 @@ void ConnectionManager::BroadcastMessage(MessageDataType msgData, QTcpSocket *se
 
     foreach(QTcpSocket *s, clients)
     {
-        if((s == socket) && (msgData.type != PLAYER_SETUP_UPDATE && msgData.type != SYSTEM_MESSAGE))
-            continue;
+        if(socket != NULL)
+        {
+            if((s == socket) && (msgData.type != PLAYER_SETUP_UPDATE && msgData.type != SYSTEM_MESSAGE))
+               continue;
+        }
 
-        s->write(msg);
+        s->write(msg);        
+        s->waitForBytesWritten();
     }
 }
 
@@ -73,12 +77,23 @@ void ConnectionManager::SendSingleMessage(MessageDataType msgData, QTcpSocket *r
 int ConnectionManager::GetConnectionLocation(QTcpSocket *s)
 {
     int i = 0;
+    qDebug() << "[ConnectionManager]" << "clients size:" << clients.size();
     foreach(QTcpSocket *tcp, clients)
     {
         if(tcp == s)
+        {
+            qDebug() << "[ConnectionManager]" << "socket found at" << i;
             return i;
+        }
 
         i++;
     }
+
+    return 0;
+}
+
+QTcpSocket *ConnectionManager::GetSocket(int index)
+{
+    return clients.at(index);
 }
 

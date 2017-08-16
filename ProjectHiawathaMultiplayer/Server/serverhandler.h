@@ -17,15 +17,18 @@ public:
 
     bool StartServer(QString IP, QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI);
     void StopServer();
+    void SendClientUpdate(MessageTypes type, QString msg);
 
 private:
     QStringList serverInfo;
     QString serverInfoStr;
     int playersReady, max;
     int x, y, ai;
-
+    QVector<int> playerSelections;
+    QVector<bool> aiStatus;
     QTimer *countdown;
     ServerManager *sm;
+
     void SetMessageString();
 
 protected:

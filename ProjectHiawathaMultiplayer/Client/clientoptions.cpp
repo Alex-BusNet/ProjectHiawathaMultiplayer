@@ -14,7 +14,7 @@ typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QStrin
                int mapDimension2;}CivInfo;
 
 ClientOptions::ClientOptions(QWidget *parent, QString username, bool fullscreen) :
-    QWidget(parent),
+    QMainWindow(parent),
     ui(new Ui::ClientOptions)
 {
     ui->setupUi(this);
@@ -180,26 +180,24 @@ void ClientOptions::UpdateServerInfo(MessageDataType msgData)
 
 void ClientOptions::ReadChatMessage(MessageDataType msgData)
 {
-    ui->chatBox->append("[" + msgData.sender + "] " + msgData.data + "\n");
+    ui->chatBox->append("[" + msgData.sender + "] " + msgData.data);
 }
 
-void ClientOptions::StartGame()
+void ClientOptions::StartGame(int count)
 {
-    static int i = 0;
-    if(i == 9)
-    {
+    qDebug() << "[ClientOptions]" << count;
+//    if(count == 0)
+//    {
         if(game != NULL)
             delete game;
 
         game = new ClientManager();
-        game->show();
         this->close();
-    }
-    else
-    {
-        ui->readyPB->setText(QString("%1").arg(10 - i));
-        i++;
-    }
+//    }
+//    else
+//    {
+//        ui->readyPB->setText(QString("%1").arg(10 - count));
+//    }
 }
 
 ClientOptions::~ClientOptions()
@@ -229,13 +227,6 @@ void ClientOptions::on_readyPB_clicked()
     else
     {
         selectedItem = ui->civListWidget->currentItem();
-    }
-
-
-//    CivInfo info = {selectedItem->text(),ui->playerLeaderName->text(),"red","blue",mapSize1,mapSize2};//This is data that needs passed
-    if(game != NULL)
-    {
-        delete game;
     }
 
     //Set the player as the correct country
@@ -298,6 +289,7 @@ void ClientOptions::on_readyPB_clicked()
     msg.data = str;
 
     ClientHandler::instance()->sendMessage(msg);
+
     ui->civListWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->civListWidget->setEnabled(false);
     ui->readyPB->setText("Waiting for\ngame start");

@@ -88,6 +88,11 @@ Civilization::Civilization(QJsonObject obj, bool isAI)
 
 }
 
+Civilization::Civilization(QJsonObject obj)
+{
+    this->ReadData(obj);
+}
+
 Civilization::~Civilization()
 {
 

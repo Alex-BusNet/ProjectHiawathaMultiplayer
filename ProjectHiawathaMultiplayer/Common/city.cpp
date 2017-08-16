@@ -379,7 +379,7 @@ void City::SetCityTile(Tile *tile)
 {
     this->cityTile = tile;
     tile->SetGoverningCity(this->cityID);
-    tile->CanAlwaysBeSeen = true;
+    tile->SetAlwaysSeen(this->cityTile->GetControllingCivListIndex());
 
     int x = tile->GetCenter().x(), y = tile->GetCenter().y();
     this->minimumSettleDistance << QPoint(x - 88, y - 147)

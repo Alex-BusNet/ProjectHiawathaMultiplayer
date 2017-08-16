@@ -33,13 +33,24 @@ public:
     bool Checked; // Map Gen Flag
     bool Selected; // Unit selection Render flag
     bool Walkable; // Map Gen path finding flag
-    bool DiscoveredByPlayer; // Fog of War flag
-    bool IsSeenByPlayer; // Fog of War and Line of Sight flag
-    bool CanAlwaysBeSeen;
+//    bool DiscoveredByPlayer; // Fog of War flag
+//    bool IsSeenByPlayer; // Fog of War and Line of Sight flag
+//    bool CanAlwaysBeSeen;
+    bool HasBeenUpdated;
     bool CanHaveFarm, CanHaveMine, CanHavePlantation, CanHavePasture, CanHaveTrade;
     bool CanHaveFishBoat, CanHaveOilWell, CanHaveCamp, CanHaveQuarry;
 
     int SeenByUnits;
+
+    bool CanBeSeenBy(int civIndex);
+    bool IsAlwaysSeenBy(int civIndex);
+    bool HasBeenDiscoveredBy(int civIndex);
+
+    void SeeTile(int civIndex, bool state);
+    void SetAlwaysSeen(int civIndex);
+    void DiscoverTile(int civIndex);
+
+    void InitializeSeenState(int totalCivCount);
 
     TileType GetTileType();
     Yield* GetYield();
@@ -75,6 +86,7 @@ public:
 
     void SetTileIndex(int index);
     int GetTileIndex();
+
     QString GetTileIDString();
     QString GetTileTypeString();
 
@@ -127,7 +139,11 @@ private:
     QPixmap tileTexture;
     Biome biome;
     Nation owner;
-    //Resource resource;
+
+    QVector<bool> discoveredBy;
+    QVector<bool> seenBy;
+    QVector<bool> alwaysSeenBy;
+
     QPen outlinePen;
     int governingCity;
     int continent, container;
