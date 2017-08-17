@@ -11,7 +11,7 @@
 #include <Client/clienthandler.h>
 
 typedef struct{QString CivName; QString LeaderName; QString PrimaryColor; QString SecondColor; int mapDimension1;
-               int mapDimension2;}CivInfo;
+               int mapDimension2;}CivGameInfo;
 
 ClientOptions::ClientOptions(QWidget *parent, QString username, bool fullscreen) :
     QMainWindow(parent),

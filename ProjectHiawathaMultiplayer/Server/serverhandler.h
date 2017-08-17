@@ -15,7 +15,7 @@ public:
     inline ServerHandler() {}
     static ServerHandler* instance();
 
-    bool StartServer(QString IP, QString setupInfo, int maxPlayers, int mapX, int mapY, int numAI);
+    bool StartServer(QString IP, int maxPlayers, int mapX, int mapY, int numAI, QVector<CivInfo *> ci);
     void StopServer();
     void SendClientUpdate(MessageTypes type, QString msg);
 
@@ -24,8 +24,11 @@ private:
     QString serverInfoStr;
     int playersReady, max;
     int x, y, ai;
-    QVector<int> playerSelections;
-    QVector<bool> aiStatus;
+//    QVector<int> playerSelections;
+//    QVector<bool> aiStatus;
+    QVector<CivInfo*> civInfo;
+    QTimer *countdown;
+    ServerManager *sm;
     QTimer *countdown;
     ServerManager *sm;
 

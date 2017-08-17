@@ -29,7 +29,7 @@ class ServerManager : public QWidget
     Q_OBJECT
 
 public:
-    explicit ServerManager(QWidget *parent = 0, int mapX = 40, int mapY = 24, QVector<int> civSelection = {16, 16}, QVector<bool> aiFlags = {false, false});
+    explicit ServerManager(QWidget *parent = 0, int mapX = 40, int mapY = 24, QVector<CivInfo *> civInfo = {new CivInfo{"Random", Random, false, new QIcon(), ""}, new CivInfo{"Random", Random, false, new QIcon(), ""}});
 
 private:
     Ui::ServerManager *ui;
@@ -77,7 +77,7 @@ private:
     /*
      * Game Control Functions
      */
-    void InitCivs(QVector<int> civSel, QVector<bool> aiFlags);
+    void InitCivs(QVector<CivInfo*> ciVec);
     void GenerateRandomCiv(QJsonArray &civRefData, bool ai, QVector<int> &selNat);
     void LoadCivs();
 //    void paintEvent(QPaintEvent *event);
@@ -107,6 +107,8 @@ public slots:
     void WarByInvasion();
     void WarByDiplomacy();
     void MakePeace();
+private slots:
+    void on_exitServerPB_clicked();
 };
 
 #endif // SERVERMANAGER_H

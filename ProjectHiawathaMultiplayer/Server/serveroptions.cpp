@@ -122,19 +122,20 @@ ServerOptions::ServerOptions(QWidget *parent) :
     ui->leaderPortrait->setScaledContents(true);
     ui->leaderPortrait->setPixmap(pic17);
     ui->civSelect->setCurrentIndex(16);
-    ui->IPEntry->setText("127.0.0.1");
+    ui->IPEntry->setText("192.168.1.87");
 
     maxPlayers = 2;
-    humanCount = 2;
-    aiCount = 0;
+    humanCount = 1;
+    aiCount = 1;
 
     for(int i = 0; i < maxPlayers; i++)
     {
-        CivInfo *ci = new CivInfo{"Random", Random, false, *nationIcons.at(16)};
+        CivInfo *ci = new CivInfo{"Random", Random, false, nationIcons.at(16), ""};
         civs.push_back(ci);
-        ui->civList->addItem(new QListWidgetItem(ci->civIcon, QString(ci->civName + "     [Human]")));
+        ui->civList->addItem(new QListWidgetItem(*ci->civIcon, QString(ci->leaderName + "     [Human]")));
         ui->civList->item(i)->setBackground(QBrush(Qt::white));
     }
+
     ui->aiRB->setEnabled(false);
 
     setup = false;
@@ -163,13 +164,13 @@ void ServerOptions::on_startServer_clicked()
     tempStr2 = tempStr.remove((tempStr.indexOf('x',0)+3),20);
     int mapSize2 = tempStr2.toInt();
 
-    QString info;
-    foreach(CivInfo *ci, civs)
-    {
-        info.append(ci->civName + "," + NationName(ci->nation) + "," + (ci->isAi ? "true" : "false") + ";");
-    }
+//    QString info;
+//    foreach(CivInfo *ci, civs)
+//    {
+//        info.append(ci->civName + "," + NationName(ci->nation) + "," + (ci->isAi ? "true" : "false") + ";");
+//    }
 
-    if(ServerHandler::instance()->StartServer(ui->IPEntry->text(), info, maxPlayers, mapSize1, mapSize2, aiCount))
+    if(ServerHandler::instance()->StartServer(ui->IPEntry->text(), /*info,*/ maxPlayers, mapSize1, mapSize2, aiCount, civs))
     {
         ui->mapSelect->setEnabled(false);
         ui->aiRB->setEnabled(false);
@@ -204,7 +205,7 @@ void ServerOptions::on_civSelect_currentIndexChanged(int index)
 
         ui->civList->item(ui->civList->currentRow())->setIcon(ui->civSelect->itemIcon(index));
 
-        civs.at(ui->civList->currentRow())->civName = ui->civSelect->currentText().remove(ui->civSelect->currentText().indexOf('(', 0), str.length()+1);
+        civs.at(ui->civList->currentRow())->leaderName = ui->civSelect->currentText().remove(ui->civSelect->currentText().indexOf('(', 0), str.length()+1);
         civs.at(ui->civList->currentRow())->nation = static_cast<Nation>(ui->civSelect->currentIndex());
     }
 }
@@ -243,9 +244,9 @@ void ServerOptions::on_mapSelect_currentIndexChanged(int index)
 //            qDebug() << "Adding more civs";
             for(int i = civs.size(); i < maxPlayers; i++)
             {
-                CivInfo *ci = new CivInfo{"Random", Random, true, *nationIcons.at(16)};
+                CivInfo *ci = new CivInfo{"Random", Random, true, nationIcons.at(16)};
                 civs.push_back(ci);
-                ui->civList->addItem(new QListWidgetItem(ci->civIcon, QString(ci->civName + "     [AI]")));
+                ui->civList->addItem(new QListWidgetItem(*ci->civIcon, QString(ci->leaderName + "     [AI]")));
             }
         }
         else
@@ -268,18 +269,18 @@ void ServerOptions::on_mapSelect_currentIndexChanged(int index)
 void ServerOptions::updateCivs(bool updateCount)
 {
 //    qDebug() << "Updating civList";
-    civs.at(ui->civList->currentRow())->civName = ui->civSelect->currentText();
+    civs.at(ui->civList->currentRow())->leaderName = ui->civSelect->currentText();
     civs.at(ui->civList->currentRow())->nation = static_cast<Nation>(ui->civSelect->currentIndex());
 
     if(civs.at(ui->civList->currentRow())->isAi)
     {
         ui->aiRB->setChecked(true);
-        ui->civList->item(ui->civList->currentRow())->setText(civs.at(ui->civList->currentRow())->civName + "     [AI]");
+        ui->civList->item(ui->civList->currentRow())->setText(civs.at(ui->civList->currentRow())->leaderName + "     [AI]");
     }
     else
     {
         ui->humanRB->setChecked(true);
-        ui->civList->item(ui->civList->currentRow())->setText(civs.at(ui->civList->currentRow())->civName + "     [Human]");
+        ui->civList->item(ui->civList->currentRow())->setText(civs.at(ui->civList->currentRow())->leaderName + "     [Human]");
     }
 
     ui->civList->item(ui->civList->currentRow())->setIcon(ui->civSelect->itemIcon(ui->civSelect->currentIndex()));
@@ -310,9 +311,9 @@ void ServerOptions::on_civList_currentRowChanged(int currentRow)
  */
 void ServerOptions::on_addCivPB_clicked()
 {
-    CivInfo *ci = new CivInfo{"Random", Random, true, *nationIcons.at(16)};
+    CivInfo *ci = new CivInfo{"Random", Random, true, nationIcons.at(16)};
     civs.push_back(ci);
-    ui->civList->addItem(new QListWidgetItem(ci->civIcon, QString(ci->civName + "     [AI]")));
+    ui->civList->addItem(new QListWidgetItem(*ci->civIcon, QString(ci->leaderName + "     [AI]")));
 }
 
 /*
@@ -340,7 +341,7 @@ void ServerOptions::on_removeCivPB_clicked()
 void ServerOptions::on_aiRB_clicked()
 {
 //    qDebug() << "AI Selected";
-    ui->civList->item(ui->civList->currentRow())->setText(QString(civs.at(ui->civList->currentRow())->civName + "     [AI]"));
+    ui->civList->item(ui->civList->currentRow())->setText(QString(civs.at(ui->civList->currentRow())->leaderName + "     [AI]"));
     civs.at(ui->civList->currentRow())->isAi = true;
     aiCount++;
     humanCount--;
@@ -349,7 +350,7 @@ void ServerOptions::on_aiRB_clicked()
 void ServerOptions::on_humanRB_clicked()
 {
 //    qDebug() << "Human Selected";
-    ui->civList->item(ui->civList->currentRow())->setText(QString(civs.at(ui->civList->currentRow())->civName + "     [Human]"));
+    ui->civList->item(ui->civList->currentRow())->setText(QString(civs.at(ui->civList->currentRow())->leaderName + "     [Human]"));
     civs.at(ui->civList->currentRow())->isAi = false;
     humanCount++;
     aiCount--;
@@ -369,15 +370,17 @@ void ServerOptions::ReadMessage()
         QStringList update = s.split(',');
         if(update.length() == 3)
         {
-            civs.at(i)->civName = update[0];
+            civs.at(i)->userName = "";
+            civs.at(i)->leaderName = update[0];
             civs.at(i)->nation = GetNationEnum(update[1]);
             ui->civList->item(i)->setIcon(ui->civSelect->itemIcon(civs.at(i)->nation));
-            ui->civList->item(i)->setText(civs.at(i)->civName + "     [" + (update[2] == "false" ? "Human" : "AI") + "]");
+            ui->civList->item(i)->setText(civs.at(i)->leaderName + "     [" + (update[2] == "false" ? "Human" : "AI") + "]");
             i++;
         }
         else if(update.length() == 4)
         {
-            civs.at(i)->civName = update[1];
+            civs.at(i)->userName = update[0];
+            civs.at(i)->leaderName = update[1];
             civs.at(i)->nation = GetNationEnum(update[2]);
             ui->civList->item(i)->setIcon(ui->civSelect->itemIcon(civs.at(i)->nation));
             ui->civList->item(i)->setText(update[1] + " (" + update[2] + ")     [" + (update[3] == "false" ? update[0] : "AI") + "]");

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>565</width>
     <height>500</height>
    </rect>
   </property>
@@ -21,6 +21,19 @@
      <width>471</width>
      <height>481</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="exitServerPB">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>470</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop Server</string>
    </property>
   </widget>
  </widget>

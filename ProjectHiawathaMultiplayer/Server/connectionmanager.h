@@ -21,11 +21,13 @@ public:
     void BroadcastMessage(MessageDataType msgData, QTcpSocket *sender);
     void SendSingleMessage(MessageDataType msgData, QTcpSocket *receiver);
 
+    void WaitForFinished();
     int GetConnectionLocation(QTcpSocket *s);
     QTcpSocket* GetSocket(int index);
 private:
     int maxConnections;
     QList<QTcpSocket*> clients;
+    bool sendingMessage;
 };
 
 #endif // CONNECTIONMANAGER_H

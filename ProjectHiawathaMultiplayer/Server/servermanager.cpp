@@ -15,10 +15,11 @@
 #include <QTime>
 #include <ui_servermanager.h>"
 
-ServerManager::ServerManager(QWidget *parent, int mapX, int mapY, QVector<int> civSelection, QVector<bool> aiFlags) :
+ServerManager::ServerManager(QWidget *parent, int mapX, int mapY, QVector<CivInfo*> civInfo) :
     QWidget(parent),
     ui(new Ui::ServerManager)
 {
+    ui->setupUi(this);
     qDebug() << "[ServerManager]" << "Starting Game Setup.";
 
     this->setWindowTitle("Project Hiawatha Server");
@@ -32,7 +33,7 @@ ServerManager::ServerManager(QWidget *parent, int mapX, int mapY, QVector<int> c
     ServerHandler::instance()->SendClientUpdate(INITIAL_MAP_DATA, QString(doc.toJson()));
     qDebug() << "[ServerManager]" << "Initial map data sent";
 
-    this->InitCivs(civSelection, aiFlags);
+    this->InitCivs(civInfo);
 
     foreach(Civilization *c, civList)
     {
@@ -76,11 +77,10 @@ ServerManager::ServerManager(QWidget *parent, int mapX, int mapY, QVector<int> c
     // and subsequently the in game year by 40 years, upon game start.
     year = -4040;
 
-
     // Await ready response
 }
 
-void ServerManager::InitCivs(QVector<int> civSel, QVector<bool> aiFlags)
+void ServerManager::InitCivs(QVector<CivInfo*> ciVec)
 {
     srand(time(0));
     QFile civData("Assets/Data/civ_data.json");
@@ -96,27 +96,27 @@ void ServerManager::InitCivs(QVector<int> civSel, QVector<bool> aiFlags)
         int civIndex = 0;
         QVector<int> selNat;
 
-        foreach(int j, civSel)
+        foreach(CivInfo* ci, ciVec)
         {
-            if(j != ((int)Random))
+            if(ci->nation != Random)
             {
-                QJsonObject obj = civRefData.at(j).toObject();
-                Civilization* civ = new Civilization(obj, aiFlags[civIndex]);
+                QJsonObject obj = civRefData.at((int)ci->nation).toObject();
+                Civilization* civ = new Civilization(obj, ci->isAi);
                 civ->loadTechs("Assets/Techs/Technology.txt");
                 civ->setCurrentTech(civ->GetTechList().at(0));
                 civ->setNextTech(civ->GetTechList().at(1));
                 civ->setCivIndex(civIndex);
 
-                diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), civ->getCiv(), aiFlags[civIndex]);
+                diplo->AddLeader(obj["name"].toString(), QPixmap(obj["leaderimagepath"].toString()), civ->getCiv(), ci->isAi);
 
                 civIndex++;
 
                 civList.push_back(civ);
-                selNat.push_back(j);
+                selNat.push_back((int)ci->nation);
             }
             else
             {
-                GenerateRandomCiv(civRefData, aiFlags[civIndex], selNat);
+                GenerateRandomCiv(civRefData, ci->isAi, selNat);
                 civIndex++;
             }
         }
@@ -927,4 +927,10 @@ void ServerManager::WarByDiplomacy()
 void ServerManager::MakePeace()
 {
 
+}
+
+void ServerManager::on_exitServerPB_clicked()
+{
+//    ServerHandler::instance()->StopServer();
+    close();
 }

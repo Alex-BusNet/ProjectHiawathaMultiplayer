@@ -47,31 +47,42 @@ bool ConnectionManager::CanAddConnection()
 void ConnectionManager::BroadcastMessage(MessageDataType msgData, QTcpSocket *sender)
 {
     qDebug() << "[ConnectionManager] BroadcastMessage()";
-
-    QTcpSocket *socket = sender;
+    sendingMessage = true;
+//    QTcpSocket *socket = sender;
     QByteArray msg;
-    msg.append(QString("%1__%2__%3").arg(msgData.type).arg(msgData.sender).arg(msgData.data));
+    msg.append(QString("%1__%2__%3__<=>").arg(msgData.type).arg(msgData.sender).arg(msgData.data));
     MessageQueue::instance()->put(msg);
 
     foreach(QTcpSocket *s, clients)
     {
-        if(socket != NULL)
+        if(sender != NULL)
         {
-            if((s == socket) && (msgData.type != PLAYER_SETUP_UPDATE && msgData.type != SYSTEM_MESSAGE))
+            if((s == sender) && (msgData.type != PLAYER_SETUP_UPDATE && msgData.type != SYSTEM_MESSAGE))
                continue;
         }
-
+        qDebug() << "[ConnectionManager]" << QString(msg);
         s->write(msg);        
         s->waitForBytesWritten();
     }
+
+    sendingMessage = false;
 }
 
 void ConnectionManager::SendSingleMessage(MessageDataType msgData, QTcpSocket *receiver)
 {
+    sendingMessage = true;
+
     QByteArray msg;
-    qDebug() << "[ConnectionManager]" << msgData.sender << msgData.data;
-    msg.append(QString("%1__%2__%3").arg(msgData.type).arg(msgData.sender).arg(msgData.data));
+    msg.append(QString("%1__%2__%3__<=>").arg(msgData.type).arg(msgData.sender).arg(msgData.data));
+    qDebug() << "[ConnectionManager]" << msg;
     receiver->write(msg);
+
+    sendingMessage = false;
+}
+
+void ConnectionManager::WaitForFinished()
+{
+    while(sendingMessage) {;}
 }
 
 int ConnectionManager::GetConnectionLocation(QTcpSocket *s)

@@ -5,8 +5,8 @@
 #include <QWidget>
 #include <Server/servermanager.h>
 #include "Common/nation.h"
+#include "Common/datatypes.h"
 
-typedef struct {QString civName; Nation nation; bool isAi; QIcon civIcon;} CivInfo;
 
 namespace Ui {
 class ServerOptions;

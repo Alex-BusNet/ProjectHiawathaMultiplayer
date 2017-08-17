@@ -3,6 +3,7 @@
 
 #include <QJsonArray>
 #include <QVector>
+#include <QIcon>
 #include "Common/nation.h"
 
 
@@ -32,6 +33,6 @@ typedef struct{bool atWar; QVector<int> warringCivListIndex;} WarData;
 typedef struct{int cityIndex; int producedUnitIndex; bool isUnit; int civIndex;} CityProdData;
 
 typedef struct{int type; QString sender; QString data; } MessageDataType;
-//typedef struct{int type; QString sender; QJsonArray data;} MessageDataType;
+typedef struct {QString leaderName; Nation nation; bool isAi; QIcon* civIcon; QString userName;} CivInfo;
 
 #endif // DATATYPES_H
