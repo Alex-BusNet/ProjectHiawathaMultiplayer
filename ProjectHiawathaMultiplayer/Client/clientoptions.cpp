@@ -159,7 +159,10 @@ void ClientOptions::UpdateServerInfo(MessageDataType msgData)
             sl = str.split(',');
             if(sl.length() == 4)
             {
-                display = "[" + (sl[3] == "true" ? "AI" : sl[0]) + "] " + sl[1] + " (" + sl[2] + ")";
+                if(sl[0] != "" && sl[0] != " ")
+                    display = "[" + (sl[3] == "true" ? "AI" : sl[0]) + "] " + sl[1] + " (" + sl[2] + ")";
+                else
+                    display = "[" + (sl[3] == "true" ? QString("AI") : QString("Human")) + "] " + sl[1] + " (" + sl[2] + ")";
 
                 if(GetNationEnum(sl[2]) != Random)
                     ui->civListWidget->item(GetNationEnum(sl[2]))->setFlags(ui->civListWidget->item(GetNationEnum(sl[2]))->flags() & ~Qt::ItemIsEnabled);

@@ -113,6 +113,7 @@ void ClientHandler::ready()
         return;
 
     qDebug() << "[ClientHandler]" << msgStr;
+
     MessageDataType msg;
     QStringList sl = msgStr.split("__");
     msg.type = sl[0].toInt();
